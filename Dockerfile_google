@@ -69,7 +69,6 @@ RUN mv voxel_only_da_v3_k0_nf_24.pt /Weights/voxel_only_da_v3_k0_nf_24._pt
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MMUG2jkVuo_8PIzXHR4hRbo5Ut-pe6rg' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1MMUG2jkVuo_8PIzXHR4hRbo5Ut-pe6rg" -O pipeline.zip && rm -rf /tmp/cookies.txt
 RUN unzip pipeline.zip
 RUN rm pipeline.zip
-RUN mv PIPELINE/* /opt/new_les/
 
 ##########
 #COPY *.py header.png female_vb_bounds.pkl male_vb_bounds.pkl average_vb_bounds.pkl README.pdf /opt/new_les/

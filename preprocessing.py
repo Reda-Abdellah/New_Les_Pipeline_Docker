@@ -114,8 +114,8 @@ def preprocess_time_points(tp1_T1_name, tp1_FLAIR_name, tp2_T1_name, tp2_FLAIR_n
     out_tp1_flair__mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_1_' + os.path.basename(tp1_T1_name))
     out_tp2_flair__mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_2_' + os.path.basename(tp2_T1_name))
     
-    out_tp1_mask__mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_1_' + os.path.basename(tp1_T1_name))
-    out_tp2_mask__mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_2_' + os.path.basename(tp2_T1_name))
+    out_tp1_mask_mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_1_' + os.path.basename(tp1_T1_name))
+    out_tp2_mask_mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_2_' + os.path.basename(tp2_T1_name))
 
     out_tp1_t1_mni = os.path.join(dirname, 'mni_template_t1_timepoint_1_' + os.path.basename(tp1_T1_name))
     out_tp2_t1_mni = os.path.join(dirname, 'mni_template_t1_timepoint_2_' + os.path.basename(tp2_T1_name))
@@ -128,27 +128,7 @@ def preprocess_time_points(tp1_T1_name, tp1_FLAIR_name, tp2_T1_name, tp2_FLAIR_n
     out_tp2_native_to_mni= os.path.join(dirname, 'matrix_affine_native_to_mni_' + replace_extension(os.path.basename(tp2_T1_name), '.nii.gz', '.txt'))
     out_mniflair_to_mniflair_for_tp2= os.path.join(dirname, 'matrix_affine_mniflair_to_mniflair_timepoint_2_' + replace_extension(os.path.basename(tp2_T1_name), '.nii.gz', '.txt'))
     
-    
-    #end 
-    """
-
-    move(outT1, newT1)
-    move(outFLAIR, newFLAIR)
-    move(outMASK, newMASK)
-    move(outIntoT1, newIntoT1)
-    move(outAffine, newAffine)
-    move(outCrisp, newCrisp)  # B:TODO: useless ???
-    move(outHemi, newHemi)  # B:TODO: useless ???
-    move(outStructures, newStructures)  # B:TODO: useless ???
-
-    os.remove(replace_extension(nativeT1_name, '.nii', '_check.nii'))  # B:TODO: ???
-    os.remove(replace_extension(nativeFLAIR_name, '.nii', '_check.nii'))
-
-    os.remove(os.path.join(dirname, "log.txt")) # matlab log file
-
-    return newT1, newFLAIR, newMASK, newIntoT1, newAffine, newCrisp, newHemi, newStructures
-    """
-    return out_tp1_flair_mnitp1_nyul, out_tp2_flair_mnitp1_nyul, out_tp1_flair__mnitp1, out_tp2_flair_mni, out_tp1_mask_mni, out_tp2_mask_mni, out_tp1_t1_mni, out_tp2_t1_mni, out_mniflair_to_mniflair_for_tp2
+    return out_tp1_flair_mnitp1_nyul, out_tp2_flair_mnitp1_nyul, out_tp1_flair__mnitp1, out_tp2_flair_mni, out_tp1_mask_mnitp1, out_tp2_mask_mnitp1, out_tp1_t1_mni, out_tp2_t1_mni, out_mniflair_to_mniflair_for_tp2
 
 # def ground_truth_toMNI(in_folder_path, preprocessed_out_folder, SEG_keyword):
 #     ants_bin = './Registration/antsApplyTransforms'
