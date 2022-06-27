@@ -30,7 +30,7 @@ RUN apt -qqy install libfontconfig1 libxt6 libxext6 texlive-xetex
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1WEqwR-soUtttFQ0zuE9QKsQ8KRgUtyYv' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1WEqwR-soUtttFQ0zuE9QKsQ8KRgUtyYv" -O Compilation_deepnewlesion_v10_fullpreprocessing.zip && rm -rf /tmp/cookies.txt
 RUN unzip Compilation_deepnewlesion_v10_fullpreprocessing.zip
 RUN rm Compilation_deepnewlesion_v10_fullpreprocessing.zip
-RUN mv Compilation_deepnewlesion_v10_fullpreprocessing/ /opt/new_les/
+RUN mv Compilation_deepnewlesion_v10_fullpreprocessing/* /opt/new_les/
 
 #Download Assemblynet weights
 #Assemblynet weights: https://drive.google.com/file/d/1L5uIlTksmWNQO_gmETOfaZcE18nE6lDL/view?usp=sharing
@@ -61,6 +61,7 @@ RUN mv CHALLENGE_WEIGHTS_inpaint_detection_decoder_FMs_da_v3_dataloader_by_lesio
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1XvidBUb71A2-JicSd5iuaLP45dHuf5SM' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1XvidBUb71A2-JicSd5iuaLP45dHuf5SM" -O voxel_only_da_v3_k0_nf_24.zip && rm -rf /tmp/cookies.txt
 RUN unzip voxel_only_da_v3_k0_nf_24.zip
 RUN rm voxel_only_da_v3_k0_nf_24.zip
+RUN sleep 1
 RUN mv voxel_only_da_v3_k0_nf_24.pt /Weights/voxel_only_da_v3_k0_nf_24._pt
 
 #Download PIPELINE
@@ -68,7 +69,7 @@ RUN mv voxel_only_da_v3_k0_nf_24.pt /Weights/voxel_only_da_v3_k0_nf_24._pt
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MMUG2jkVuo_8PIzXHR4hRbo5Ut-pe6rg' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1MMUG2jkVuo_8PIzXHR4hRbo5Ut-pe6rg" -O pipeline.zip && rm -rf /tmp/cookies.txt
 RUN unzip pipeline.zip
 RUN rm pipeline.zip
-RUN mv voxel_only_da_v3_k0_nf_24.pt /Weights/voxel_only_da_v3_k0_nf_24._pt
+RUN mv PIPELINE/* /opt/new_les/
 
 ##########
 #COPY *.py header.png female_vb_bounds.pkl male_vb_bounds.pkl average_vb_bounds.pkl README.pdf /opt/new_les/
@@ -79,7 +80,7 @@ RUN pip3 install statsmodels  keras==2.2.4 pillow nibabel==2.5.2 scikit-image==0
 RUN apt -qqy install libatk1.0-0
 RUN mv /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libfreetype.so.6 /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libfreetype.so.6.bak
 RUN git clone https://github.com/Reda-Abdellah/New_Les_Pipeline_Docker.git
-
+RUN mv New_Les_Pipeline_Docker/* /opt/new_les/
 
 ENTRYPOINT [ "python3", "/opt/new_les/end_to_end_pipeline_file.py" ]
 

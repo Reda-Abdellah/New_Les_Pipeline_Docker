@@ -56,7 +56,7 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     t0 = time.time()
 
     #be careful the masks is on tp1 space
-    """
+    
     out_tp1_flair_mnitp1_nyul, out_tp2_flair_mnitp1_nyul, out_tp1_flair_mnitp1, out_tp2_flair_mni, out_tp1_mask_mni, out_tp2_mask_mnitp1, out_tp1_t1_mni, out_tp2_t1_mni, out_mniflair_to_mniflair_for_tp2  = preprocess_time_points(*tmp_filename, output_dir)
 
     """
@@ -65,19 +65,18 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     out_tp1_mask_mni, out_tp2_mask_mnitp1= "/data/mni_mask_timepoint_1_90_99172_T1.nii.gz", "/data/mni_mask_timepoint_2_90_122039_T1.nii.gz"
     out_tp1_t1_mni, out_tp2_t1_mni= "/data/mni_template_t1_timepoint_1_90_99172_T1.nii.gz", "/data/mni_template_t1_timepoint_2_90_122039_T1.nii.gz"
     out_mniflair_to_mniflair_for_tp2="/data/matrix_affine_mniflair_to_mniflair_timepoint_2_90_122039_T1.txt"
-    
+    """
     
     run_command("ls {}".format(output_dir)) #DEBUG
 
-    """
+    
     out_tp2_mask_mni = to_native(out_tp2_mask_mnitp1, out_mniflair_to_mniflair_for_tp2, out_tp2_t1_mni, dtype='uint8')
-    """
     
     t1 = time.time()
     Weights_list = keyword_toList(path='/Weights/', keyword='.pt')
     
     
-    """
+    
     mnitp1_new_les= get_new_lesions_mni(Weights_list, out_tp1_flair_mnitp1_nyul, out_tp2_flair_mnitp1_nyul, None, strategy='decoder_with_FMs')
 
     Weights_list_DLB = keyword_toList(path='/Weights_DLB/', keyword='.h5')
@@ -95,11 +94,12 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     all_lesions_filename_tp1="/data/all_lesions_mni_template_t1_timepoint_1_90_99172_T1.nii.gz"
     all_lesions_filename_tp2="/data/all_lesions_mni_template_t1_timepoint_2_90_122039_T1.nii.gz"
     mnitp1_new_les="/data/mni_new_lesions_timepoint_2_90_122039_T1.nii.gz"
-
+    """
+    
     timepoints_segmentation_consistency(all_lesions_filename_tp1, all_lesions_filename_tp2, mnitp1_new_les, method="new_les_fidelity")
 
     #"""
-    os.chdir("Inpainting/")
+    os.chdir("PIPELINE/Inpainting/")
     run_command(f"python3 -u doNonBlindInpainting.py {stringify(out_tp1_t1_mni)}")
     run_command(f"python3 -u doNonBlindInpainting.py {stringify(out_tp2_t1_mni)}")
     os.chdir(pwd)
@@ -108,7 +108,7 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     print("------------------------------")
     
     #RegQCNet
-    os.chdir("QualityControl/DeepQCReg/")
+    os.chdir("PIPELINE/QualityControl/DeepQCReg/")
     run_command(f"python3 -u deepQCReg.py {stringify(out_tp1_t1_mni)}")
     run_command(f"python3 -u deepQCReg.py {stringify(out_tp2_t1_mni)}")
     os.chdir(pwd)
@@ -124,7 +124,7 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
 
            
     #DeepReg
-    os.chdir("Registration/DeepREG/version2/")
+    os.chdir("PIPELINE/Registration/DeepREG/version2/")
     run_command(f"python3 -u DeepReg.py {stringify(out_tp1_t1_mni)}")
     run_command(f"python3 -u DeepReg.py {stringify(out_tp2_t1_mni)}")
     os.chdir(pwd)
@@ -134,17 +134,21 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     print("------------------------------")
 
     #"""
-    
     # need to rename so the input of assemblynet is n_mmni_fINPUT, and mask_n_mmni_fINPUT
     #AssemblyNet
-    os.chdir("Segmentation/AssemblyNET")
-    """
+    os.chdir("PIPELINE/Segmentation/AssemblyNET")
     run_command(f"python3 -u segment.py {stringify(out_tp1_t1_mni)}")
     run_command(f"python3 -u segment.py {stringify(out_tp2_t1_mni)}")
+
+    os.chdir(pwd)
+
     """
     assemblynet_seg_tp1= "/data/Assembly_seg_1mm_n_mmni_fmni_template_t1_timepoint_1_90_99172_T1.nii.gz"
     assemblynet_seg_tp2= "/data/Assembly_seg_1mm_n_mmni_fmni_template_t1_timepoint_2_90_122039_T1.nii.gz"
-    
+    """
+    assemblynet_seg_tp1= '/data/Assembly_seg_1mm_'+ os.path.basename(out_tp1_t1_mni)
+    assemblynet_seg_tp2= '/data/Assembly_seg_1mm_'+ os.path.basename(out_tp2_t1_mni)
+
     
     mni_lesion_filename_tp1, results_lesion_type_tp1 = get_lesion_by_regions_Assemblynet(assemblynet_seg_tp1, all_lesions_filename_tp1)
     mni_lesion_filename_tp2, results_lesion_type_tp2 = get_lesion_by_regions_Assemblynet(assemblynet_seg_tp2, all_lesions_filename_tp2)
@@ -173,7 +177,7 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     report(out_tp2_t1_mni, out_tp2_flair_mni, out_tp2_mask_mnitp1, mni_structures_filename_tp2,  
            out_mniflair_to_mniflair_for_tp2, mni_tissues_tp2, mni_lesion_filename_tp2, bounds_df, age, sex, no_pdf_report)
     
-    end
+    end #code not adapted after this point
 
     # os.remove(unfiltred_t1_filename)
     os.remove(hemi_filename)
