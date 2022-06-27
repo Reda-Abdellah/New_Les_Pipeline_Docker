@@ -1,11 +1,13 @@
 FROM nvcr.io/nvidia/tensorflow:21.08-tf1-py3
 #FROM tensorflow/tensorflow:1.15.4-gpu-py3
-LABEL name=deeplesionbrain \
-      version=0.1 \
+
+LABEL name=new_les \
+      version=1.0 \
       maintainer=reda-abdellah.kamraoui@labri.fr \
       net.volbrain.pipeline.mode=gpu_only \
       net.volbrain.pipeline.name=assemblyNet
-RUN curl -LO http://ssd.mathworks.com/supportfiles/downloads/R2017b/deployment_files/R2017b/installers/glnxa64/MCR_R2017b_glnxa64_installer.zip && \
+
+RUN curl -LO https://ssd.mathworks.com/supportfiles/downloads/R2017b/deployment_files/R2017b/installers/glnxa64/MCR_R2017b_glnxa64_installer.zip && \
     mkdir MCR && \
     cp MCR_R2017b_glnxa64_installer.zip MCR && \
     cd MCR && \
@@ -13,42 +15,76 @@ RUN curl -LO http://ssd.mathworks.com/supportfiles/downloads/R2017b/deployment_f
     ./install -mode silent -agreeToLicense yes && \
     cd .. && \
     rm -rf MCR
+
 ARG DEBIAN_FRONTEND=noninteractive
 ARG DEBCONF_NONINTERACTIVE_SEEN=true
-WORKDIR /opt/deeplesionbrain
-ENV LD_LIBRARY_PATH=/usr/local/MATLAB/MATLAB_Runtime/v93/runtime/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v93/sys/os/glnxa64:/usr/local/MATLAB/MATLAB_Runtime/v93/sys/opengl/lib/glnxa64:/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-ENV XAPPLRESDIR=/usr/local/MATLAB/MATLAB_Runtime/v93/X11/app-defaults
-ENV MCR_CACHE_VERBOSE=true
-ENV MCR_CACHE_ROOT=/tmp
-RUN mkdir /usr/local/MATLAB/MATLAB_Runtime/v93/sys/os/glnxa64/exclude
-RUN mkdir /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/exclude
-RUN mv /usr/local/MATLAB/MATLAB_Runtime/v93/sys/os/glnxa64/libstdc++.so.6.* /usr/local/MATLAB/MATLAB_Runtime/v93/sys/os/glnxa64/exclude/
-RUN mv /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libfreetype* /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/exclude/
-RUN echo deb http://archive.ubuntu.com/ubuntu/ trusty main restricted universe multiverse  >> /etc/apt/sources.list
-RUN echo deb http://archive.ubuntu.com/ubuntu/ trusty-security main restricted universe multiverse  >> /etc/apt/sources.list
-RUN echo deb http://archive.ubuntu.com/ubuntu/ trusty-updates main restricted universe multiverse  >> /etc/apt/sources.list
-RUN echo deb http://archive.ubuntu.com/ubuntu/ trusty-proposed main restricted universe multiverse  >> /etc/apt/sources.list
-RUN echo deb http://archive.ubuntu.com/ubuntu/ trusty-backports main restricted universe multiverse  >> /etc/apt/sources.list
+RUN mkdir -p /opt/new_les
+WORKDIR /opt/new_les
+
 RUN apt-get update
-RUN apt -qqy install libx11-dev xserver-xorg libfontconfig1 libxt6 libxcomposite1 libasound2 libxext6 texlive-xetex
-RUN apt -qqy install wget
-RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1FkcruF4AeJjgmcVpfKQgbrMXOvG2bO7D' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1FkcruF4AeJjgmcVpfKQgbrMXOvG2bO7D" -O Compilation_lesionBrain_v10.zip && rm -rf /tmp/cookies.txt
-RUN unzip Compilation_lesionBrain_v10.zip
-RUN mv Compilation_lesionBrain_v11_fullpreprocessing/* /opt/deeplesionbrain
-RUN pip3 install scikit-learn statsmodels  keras==2.2.4 pillow nibabel==2.5.2 scikit-image==0.17.2
-RUN mkdir /Weights
-RUN echo "download weights"
+# RUN apt -qqy install libx11-dev xserver-xorg libfontconfig1 libxt6 libxcomposite1 libasound2 libxext6 texlive-xetex
+RUN apt -qqy install libfontconfig1 libxt6 libxext6 texlive-xetex
+
+#Download Preprocess pipeline
+#Preprocessing link: https://drive.google.com/file/d/1WEqwR-soUtttFQ0zuE9QKsQ8KRgUtyYv/view?usp=sharing
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1WEqwR-soUtttFQ0zuE9QKsQ8KRgUtyYv' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1WEqwR-soUtttFQ0zuE9QKsQ8KRgUtyYv" -O Compilation_deepnewlesion_v10_fullpreprocessing.zip && rm -rf /tmp/cookies.txt
+RUN unzip Compilation_deepnewlesion_v10_fullpreprocessing.zip
+RUN rm Compilation_deepnewlesion_v10_fullpreprocessing.zip
+RUN mv Compilation_deepnewlesion_v10_fullpreprocessing/ /opt/new_les/
+
+#Download Assemblynet weights
+#Assemblynet weights: https://drive.google.com/file/d/1L5uIlTksmWNQO_gmETOfaZcE18nE6lDL/view?usp=sharing
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1L5uIlTksmWNQO_gmETOfaZcE18nE6lDL' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1L5uIlTksmWNQO_gmETOfaZcE18nE6lDL" -O networks_lifespan360x2_FT_trimmed.zip && rm -rf /tmp/cookies.txt
+RUN unzip networks_lifespan360x2_FT_trimmed.zip
+RUN rm networks_lifespan360x2_FT_trimmed.zip
+RUN mkdir /opt/new_les/networks_lifespan360x2_FT
+RUN mv networks_lifespan360x2_FT_trimmed/* /opt/new_les/networks_lifespan360x2_FT
+
+#Download DLB weights
+#DLB weights: https://drive.google.com/file/d/1yr_hiYb7_kJLo5WVOaPckxRICvN9YzU9/view?usp=sharing
 RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1yr_hiYb7_kJLo5WVOaPckxRICvN9YzU9' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1yr_hiYb7_kJLo5WVOaPckxRICvN9YzU9" -O trained_all_second_step_iqda.zip && rm -rf /tmp/cookies.txt
 RUN unzip trained_all_second_step_iqda.zip
-RUN mv trained_all_second_step_iqda/* /Weights/
-RUN rm -f trained_all_second_step_iqda.zip
-RUN rm -f Compilation_lesionBrain_v10.zip
-RUN apt -qqy install git
-RUN chmod 777 -R /opt/deeplesionbrain/*
-#RUN git clone https://github.com/Reda-Abdellah/DLB_docker.git
-#RUN mv DLB_docker/* /opt/deeplesionbrain
-COPY * /opt/deeplesionbrain/
-RUN mkdir /data/
-RUN mv /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libmwcoder_types.so* /usr/local/MATLAB/MATLAB_Runtime/v93/sys/os/glnxa64/exclude/
+RUN rm trained_all_second_step_iqda.zip
+RUN mkdir /Weights_DLB
+RUN mv trained_all_second_step_iqda/* /Weights_DLB/
+
+#Download New les weights
+#New_les weights: https://drive.google.com/file/d/1DSMiUU5fKzlvD4GnMAMSe2859fYRSovy/view?usp=sharing
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1DSMiUU5fKzlvD4GnMAMSe2859fYRSovy' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1DSMiUU5fKzlvD4GnMAMSe2859fYRSovy" -O new_les_weights.zip && rm -rf /tmp/cookies.txt
+RUN unzip new_les_weights.zip
+RUN rm new_les_weights.zip
+RUN mkdir /Weights
+RUN mv CHALLENGE_WEIGHTS_inpaint_detection_decoder_FMs_da_v3_dataloader_by_lesion3_by_tile5_negative_samples1_challenge/* /Weights/
+
+#Download New les encoder weights
+#New_les encoder weights: https://drive.google.com/file/d/1XvidBUb71A2-JicSd5iuaLP45dHuf5SM/view?usp=sharing
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1XvidBUb71A2-JicSd5iuaLP45dHuf5SM' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1XvidBUb71A2-JicSd5iuaLP45dHuf5SM" -O voxel_only_da_v3_k0_nf_24.zip && rm -rf /tmp/cookies.txt
+RUN unzip voxel_only_da_v3_k0_nf_24.zip
+RUN rm voxel_only_da_v3_k0_nf_24.zip
+RUN mv voxel_only_da_v3_k0_nf_24.pt /Weights/voxel_only_da_v3_k0_nf_24._pt
+
+#Download PIPELINE
+#PIPELINE: https://drive.google.com/file/d/1MMUG2jkVuo_8PIzXHR4hRbo5Ut-pe6rg/view?usp=sharing
+RUN wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1MMUG2jkVuo_8PIzXHR4hRbo5Ut-pe6rg' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1MMUG2jkVuo_8PIzXHR4hRbo5Ut-pe6rg" -O pipeline.zip && rm -rf /tmp/cookies.txt
+RUN unzip pipeline.zip
+RUN rm pipeline.zip
+RUN mv voxel_only_da_v3_k0_nf_24.pt /Weights/voxel_only_da_v3_k0_nf_24._pt
+
+##########
+#COPY *.py header.png female_vb_bounds.pkl male_vb_bounds.pkl average_vb_bounds.pkl README.pdf /opt/new_les/
+##########
+
+
+RUN pip3 install statsmodels  keras==2.2.4 pillow nibabel==2.5.2 scikit-image==0.17.2 pandas torch==1.10.0
 RUN apt -qqy install libatk1.0-0
-ENTRYPOINT [ "python3", "/opt/deeplesionbrain/end_to_end_pipeline_file.py" ]
+RUN mv /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libfreetype.so.6 /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libfreetype.so.6.bak
+RUN git clone https://github.com/Reda-Abdellah/New_Les_Pipeline_Docker.git
+
+
+ENTRYPOINT [ "python3", "/opt/new_les/end_to_end_pipeline_file.py" ]
+
+#sudo docker run -it --rm --gpus device=0 -v /media/rkamraoui/4TB/preprocessing/test:/data new_les /data/90_99172_T1.nii.gz /data/90_99172_FLAIR.nii.gz /data/90_122039_T1.nii.gz /data/90_122039_FLAIR.nii.gz
+
+
+
+

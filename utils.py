@@ -18,6 +18,9 @@ from scipy.signal import argrelextrema
 # from scipy.stats import pearsonr
 import time
 import subprocess
+from scipy.ndimage.morphology import binary_fill_holes, binary_dilation, binary_erosion
+from scipy.ndimage.measurements import center_of_mass
+from skimage.measure import label
 
 
 def save_img_preview(input_file):
@@ -37,6 +40,44 @@ def save_img_preview(input_file):
 	array_img.set_data_dtype(out_type)
 	# print('saving...' + output_file)
 	array_img.to_filename(output_file)
+
+def timepoints_segmentation_consistency(les_mask_tp1_path, les_mask_tp2_path, new_les_mask_path, method="new_les_fidelity"):
+	structure = np.ones([5, 5, 5])
+
+	les_mask_tp1 = nii.load(les_mask_tp1_path).get_fdata()
+	les_mask_tp2 = nii.load(les_mask_tp2_path).get_fdata()
+	new_les_mask = nii.load(new_les_mask_path).get_fdata()
+
+	seg_labels, seg_num = label(new_les_mask, return_num=True, connectivity=2)
+	
+	for i in range(1, seg_num+1):
+		ind = (seg_labels == i)
+
+		if ((ind * les_mask_tp2).sum()==0):
+			les_mask_tp2[ind]=1
+		
+		if ((ind * les_mask_tp1).sum()>0):
+			
+			ind_dil= binary_dilation((ind > 0), structure)
+			les_mask_tp2[ind_dil]=0
+
+	seg_labels, seg_num = label(les_mask_tp2, return_num=True, connectivity=2)
+
+	for i in range(1, seg_num+1):
+		ind = (seg_labels == i)
+		ind_dil= binary_dilation((ind > 0), structure)
+		if (((ind * new_les_mask).sum()>0) and ((ind_dil * les_mask_tp1).sum()==0)):
+			if (method=="new_les_fidelity"):
+				les_mask_tp2[ind_dil]=0
+			elif(method=="sensitivity"):
+				new_les_mask[ind_dil]=1
+
+	affine= nii.load(les_mask_tp1_path).affine
+	nii.Nifti1Image(les_mask_tp1, affine).to_filename(les_mask_tp1_path)
+	nii.Nifti1Image(les_mask_tp2, affine).to_filename(les_mask_tp2_path)
+	nii.Nifti1Image(new_les_mask, affine).to_filename(new_les_mask_path)
+	
+
 
 
 def normalize_image(vol, contrast):

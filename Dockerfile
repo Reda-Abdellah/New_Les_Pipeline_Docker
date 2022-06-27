@@ -45,12 +45,17 @@ RUN  apt-get install sudo -y
 RUN mv /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libfreetype.so.6 /usr/local/MATLAB/MATLAB_Runtime/v93/bin/glnxa64/libfreetype.so.6.bak
 
 RUN pip3 install torch==1.10.0
-COPY *.py header.png female_vb_bounds.pkl male_vb_bounds.pkl average_vb_bounds.pkl README.pdf /opt/new_les/
 COPY voxel_only_da_v3_k0_nf_24.pt /Weights/voxel_only_da_v3_k0_nf_24._pt
 RUN mkdir /Weights_DLB
 COPY DLB_Weights/ /Weights_DLB/
+COPY networks_lifespan360x2_FT_trimmed /opt/new_les/networks_lifespan360x2_FT
 
+COPY PIPELINE /opt/new_les/
+
+COPY *.py header.png female_vb_bounds.pkl male_vb_bounds.pkl average_vb_bounds.pkl README.pdf /opt/new_les/
 
 
 
 ENTRYPOINT [ "python3", "/opt/new_les/end_to_end_pipeline_file.py" ]
+
+#sudo docker run -it --rm --gpus device=0 -v /media/rkamraoui/4TB/preprocessing/test:/data new_les /data/90_99172_T1.nii.gz /data/90_99172_FLAIR.nii.gz /data/90_122039_T1.nii.gz /data/90_122039_FLAIR.nii.gz

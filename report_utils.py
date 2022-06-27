@@ -71,6 +71,50 @@ def get_structures(hemi_filename, structures_sym_filename):
     array_img.to_filename(structures_filename)
     return structures_filename
 
+def get_tissues_from_Assemblynet(fname_lab):
+    structures_assemblynet = nii.load(fname_lab).get_data() 
+    structures = np.zeros(fname_lab.shape)
+    # 
+    Cortical_labs= [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 112, 113, 114, 115, 116, 117,118, 119, 120, 121, 122, 123, 124, 125, 128, 129, 132, 133, 134, 135, 136, 137,138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153,154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171,172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187,190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205,206, 207] 
+    Cerebrum_WM_labs= [44, 45, 61, 62]
+    Subcortical_GM= [23, 30, 31, 32, 36, 37, 47, 48, 55, 56, 57, 58, 59, 60, 75, 76]
+    Cerebellum_GM_labs= [38, 39, 71, 72, 73]
+    Cerebellum_WM_labs= [40, 41]
+    Left_cerebrum_labs=[30, 32, 37, 45, 48, 56, 58, 60, 62, 75, 101, 103, 105, 107, 109, 113, 115, 117, 119,121, 123, 125, 129, 133, 135, 137, 139, 141, 143, 145, 147, 149, 151, 153, 155,157, 161, 163, 165, 167, 169, 171, 173, 175, 177, 179, 181, 183, 185, 187, 191,193, 195, 197, 199, 201, 203, 205, 207]
+    Right_cerebrum_labs=[23, 31, 36, 44, 47, 55, 57, 59, 61, 76, 100, 102, 104, 106, 108, 112, 114, 116, 118,120, 122, 124, 128, 132, 134, 136, 138, 140, 142, 144, 146, 148, 150, 152, 154,156, 160, 162, 164, 166, 168, 170, 172, 174, 176, 178, 180, 182, 184, 186, 190,192, 194, 196, 198, 200, 202, 204, 206]
+    Left_cerebellum_labs=[39, 41]
+    Right_cerebellum_labs=[38, 40]
+    Vermal_labs=[71, 72, 73]
+    Brainstem_lab= [35]
+    Structure_lab=[4,11,23,30,31,32,36,34,57,58,59,60,47,48,55,56]
+    csf=[4,11]+np.arange(49,53).tolist()+np.arange(209,348).tolist()
+
+    # ['Tissue WM cm3', 'Tissue GM cm3', 'Tissue CSF cm3']
+    lab_macro=1
+    for labs in [ Cerebrum_WM_labs+Cerebellum_WM_labs , Cortical_labs+Subcortical_GM+Cerebellum_GM_labs, csf]:
+        tissue_lab= np.isin(structures_assemblynet, np.array(labs))
+        structures[ tissue_lab ]=lab_macro
+        lab_macro=lab_macro+1
+
+    structures_filename = structures_assemblynet.replace('Assembly', 'tissues').replace('.nii', '.nii.gz')
+    array_img = nii.Nifti1Image(structures.astype('uint8'), nii.load(structures_assemblynet).affine)
+    array_img.to_filename(structures_filename)
+    return structures_filename
+
+def get_structures_from_Assemblynet(fname_lab):
+    structures_assemblynet = nii.load(fname_lab).get_data() 
+    structures = np.zeros(fname_lab.shape)
+    # Left than Right for the following structures --> ['Lateral ventricles', 'Caudate', 'Putamen', 'Thalamus', 'Globus pallidus', 'Hippocampus', 'Amygdala', 'Accumbens']
+
+    lab_macro=1
+    for lab in [52,51,37,36,58,57,60,59,56,55,48,47,32,31,30,23]:
+        structures[(structures_assemblynet== lab)]=lab_macro
+        lab_macro=lab_macro+1
+
+    structures_filename = structures_assemblynet.replace('Assembly', 'macro_structures').replace('.nii', '.nii.gz')
+    array_img = nii.Nifti1Image(structures.astype('uint8'), nii.load(structures_assemblynet).affine)
+    array_img.to_filename(structures_filename)
+    return structures_filename
 
 def get_lesion_by_regions(fname, fname_crisp, fname_hemi, fname_lab, fname_lesion):
 
@@ -164,6 +208,122 @@ def get_lesion_by_regions(fname, fname_crisp, fname_hemi, fname_lab, fname_lesio
     array_img.to_filename(classified_name)
     return classified_name  # , region_name, wm_name   #B:TODO: return lesion2 ???? to avoid to reload it !!!
 
+def get_lesion_by_regions_Assemblynet(fname_lab, fname_lesion):
+
+    juxtacortical_idx = 3
+    deepwhite_idx = 2
+    periventricular_idx = 1
+    cerebelar_idx = 4
+    medular_idx = 5
+
+    Cortical_labs= [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 112, 113, 114, 115, 116, 117,118, 119, 120, 121, 122, 123, 124, 125, 128, 129, 132, 133, 134, 135, 136, 137,138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153,154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171,172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187,190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205,206, 207] 
+    Cerebrum_WM_labs= [44, 45, 61, 62]
+    Subcortical_GM= [23, 30, 31, 32, 36, 37, 47, 48, 55, 56, 57, 58, 59, 60, 75, 76]
+    Cerebellum_GM_labs= [38, 39, 71, 72, 73]
+    Cerebellum_WM_labs= [40, 41]
+    Left_cerebrum_labs=[30, 32, 37, 45, 48, 56, 58, 60, 62, 75, 101, 103, 105, 107, 109, 113, 115, 117, 119,121, 123, 125, 129, 133, 135, 137, 139, 141, 143, 145, 147, 149, 151, 153, 155,157, 161, 163, 165, 167, 169, 171, 173, 175, 177, 179, 181, 183, 185, 187, 191,193, 195, 197, 199, 201, 203, 205, 207]
+    Right_cerebrum_labs=[23, 31, 36, 44, 47, 55, 57, 59, 61, 76, 100, 102, 104, 106, 108, 112, 114, 116, 118,120, 122, 124, 128, 132, 134, 136, 138, 140, 142, 144, 146, 148, 150, 152, 154,156, 160, 162, 164, 166, 168, 170, 172, 174, 176, 178, 180, 182, 184, 186, 190,192, 194, 196, 198, 200, 202, 204, 206]
+    Left_cerebellum_labs=[39, 41]
+    Right_cerebellum_labs=[38, 40]
+    Vermal_labs=[71, 72, 73]
+    Brainstem_lab= [35]
+    Structure_lab=[4,11,23,30,31,32,36,34,57,58,59,60,47,48,55,56]
+
+    lab = nii.load(fname_lab).get_data()
+    lesion = nii.load(fname_lesion).get_data()
+
+    ventricles = (lab == 4) + (lab == 11)
+    cond1 = np.isin(lab, np.array(Cerebrum_WM_labs+Cerebellum_WM_labs))
+    cond2 = (lesion > 0)
+    structure = np.ones([5, 5, 5])
+    cond3 = binary_dilation(  np.isin(lab, np.array(Structure_lab)), structure)
+    wm_filled = binary_fill_holes((cond1.astype('int') + cond2.astype('int') + cond3.astype('int')) > 0).astype('int')*6
+
+    #wm = (((cond1) + (lesion > 0)) > 0).astype('int')
+
+    SE = np.zeros([5, 5, 5])  # 3 mm distance
+    for i in range(5):
+        for j in range(5):
+            for k in range(5):
+                if(((((i-3)**2)+((j-3)**2)+((k-3)**2))**0.5) < 3):
+                    SE[i, j, k] = 1
+
+    periventricular = wm_filled*binary_dilation(ventricles, SE)
+    yuxtacortical = wm_filled-binary_erosion(wm_filled, SE)
+    deep = abs(wm_filled-periventricular-yuxtacortical) > 0
+
+    cerebrum = np.isin(lab, np.array(Left_cerebrum_labs+Right_cerebrum_labs))
+    medular = np.isin(lab, np.array(Brainstem_lab))
+    cerebelar = np.isin(lab, np.array(Right_cerebellum_labs+Left_cerebellum_labs+Vermal_labs))
+    # infratenttorial = medular+cerebelar
+
+    regions = np.zeros(lesion.shape)
+    ind = (cerebrum * yuxtacortical) > 0
+    regions[ind] = 3
+    ind = (cerebrum * deep) > 0
+    regions[ind] = 2
+    ind = (cerebrum * periventricular) > 0
+    regions[ind] = 1
+    ind = (cerebelar) > 0
+    regions[ind] = 4
+    ind = (medular) > 0
+    regions[ind] = 5
+
+   
+    # clasification
+    seg_labels, seg_num = label(lesion, return_num=True, connectivity=2)
+
+    # Lesion analysis
+    lesion2 = np.zeros(lesion.shape)
+    results={'periventricular_vox_count': 0,
+             'juxtacortical_vox_count': 0,
+             'cerebelar_vox_count': 0,
+             'medular_vox_count': 0,
+             'deepwhite_vox_count': 0,
+             'periventricular_les_count': 0,
+             'juxtacortical_les_count': 0,
+             'cerebelar_les_count': 0,
+             'medular_les_count': 0,
+             'deepwhite_les_count': 0 }
+    for i in range(1, seg_num+1):
+        # Clasification
+        ind = (seg_labels == i)
+        votes = regions[ind]
+        # periventicular
+        if((votes == periventricular_idx).sum() > 0):
+            lesion2[ind] = periventricular_idx
+            results['periventricular_vox_count']+= ind.astype('int').sum()
+            results['periventricular_les_count']+= 1
+
+        # yuxtacortical
+        elif((votes == juxtacortical_idx).sum() > 0):
+            lesion2[ind] = juxtacortical_idx
+            results['juxtacortical_vox_count']+= ind.astype('int').sum()
+            results['juxtacortical_les_count']+= 1
+
+        # cerebelar
+        elif((votes == cerebelar_idx).sum() > 0):
+            lesion2[ind] = cerebelar_idx
+            results['cerebelar_vox_count']+= ind.astype('int').sum()
+            results['cerebelar_les_count']+= 1
+
+        # medular
+        elif((votes == medular_idx).sum() > 0):
+            lesion2[ind] = medular_idx
+            results['medular_vox_count']+= ind.astype('int').sum()
+            results['medular_les_count']+= 1
+
+        # deep
+        else:
+            lesion2[ind] = deepwhite_idx
+            results['deepwhite_vox_count']+= ind.astype('int').sum()
+            results['deepwhite_les_count']+= 1
+
+    classified_name = fname_lesion.replace('all_lesions', 'lesion_types')
+    array_img = nii.Nifti1Image(lesion2, nii.load(fname_lesion).affine)
+    array_img.set_data_dtype(lesion2.dtype)
+    array_img.to_filename(classified_name)
+    return classified_name, results
 
 def compute_volumes(im, labels, scale):
     assert(type(labels) is list)
