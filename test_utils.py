@@ -176,6 +176,7 @@ def get_new_lesions_mni(WEIGHTS, flair1_name, flair2_name, brain_mask_name, stra
     img = nii.Nifti1Image(SEG_mask.astype(np.uint8), nii.load(flair1_name).affine )
     img.to_filename(pred_name)
     gc.collect() #free memory
+    return pred_name
 
 def normalize_image(vol, contrast):
     # copied  MedICL-VU / LesionSeg
