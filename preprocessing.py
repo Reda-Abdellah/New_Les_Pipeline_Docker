@@ -114,13 +114,13 @@ def preprocess_time_points(tp1_T1_name, tp1_FLAIR_name, tp2_T1_name, tp2_FLAIR_n
     out_tp1_flair__mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_1_' + os.path.basename(tp1_T1_name))
     out_tp2_flair__mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_2_' + os.path.basename(tp2_T1_name))
     
-    out_tp1_mask_mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_1_' + os.path.basename(tp1_T1_name))
-    out_tp2_mask_mnitp1 = os.path.join(dirname, 'mni_flair_timepoint_2_' + os.path.basename(tp2_T1_name))
+    out_tp1_mask_mnitp1 = os.path.join(dirname, 'mni_mask_timepoint_1_' + os.path.basename(tp1_T1_name))
+    out_tp2_mask_mnitp1 = os.path.join(dirname, 'mni_mask_timepoint_2_' + os.path.basename(tp2_T1_name))
 
     out_tp1_t1_mni = os.path.join(dirname, 'mni_template_t1_timepoint_1_' + os.path.basename(tp1_T1_name))
     out_tp2_t1_mni = os.path.join(dirname, 'mni_template_t1_timepoint_2_' + os.path.basename(tp2_T1_name))
     
-    out_tp2_flair_mni = os.path.join(dirname, 'mni_template_flair_timepoint_2_' + os.path.basename(tp1_T1_name))
+    out_tp2_flair_mni = os.path.join(dirname, 'mni_template_flair_timepoint_2_' + os.path.basename(tp2_T1_name))
 
     out_tp1_flair_to_t1= os.path.join(dirname, 'matrix_affine_flair_to_t1_' + replace_extension(os.path.basename(tp1_T1_name), '.nii.gz', '.txt'))
     out_tp2_flair_to_t1= os.path.join(dirname, 'matrix_affine_flair_to_t1_' + replace_extension(os.path.basename(tp2_T1_name), '.nii.gz', '.txt'))
