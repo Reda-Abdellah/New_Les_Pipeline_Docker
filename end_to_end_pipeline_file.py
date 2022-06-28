@@ -96,9 +96,9 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     mnitp1_new_les="/data/mni_new_lesions_timepoint_2_90_122039_T1.nii.gz"
     """
     
+
     timepoints_segmentation_consistency(all_lesions_filename_tp1, all_lesions_filename_tp2, mnitp1_new_les, method="new_les_fidelity")
 
-    #"""
     os.chdir("PIPELINE/Inpainting/")
     run_command(f"python3 -u doNonBlindInpainting.py {stringify(out_tp1_t1_mni)}")
     run_command(f"python3 -u doNonBlindInpainting.py {stringify(out_tp2_t1_mni)}")
@@ -133,7 +133,6 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     #run_command(f"ls -l {TMP_DIR}") #DEBUG
     print("------------------------------")
 
-    #"""
     # need to rename so the input of assemblynet is n_mmni_fINPUT, and mask_n_mmni_fINPUT
     #AssemblyNet
     os.chdir("PIPELINE/Segmentation/AssemblyNET")
@@ -142,13 +141,13 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
 
     os.chdir(pwd)
 
+    assemblynet_seg_tp1= '/data/Assembly_seg_1mm_n_mmni_f'+ os.path.basename(out_tp1_t1_mni)
+    assemblynet_seg_tp2= '/data/Assembly_seg_1mm_n_mmni_f'+ os.path.basename(out_tp2_t1_mni)
+
     """
     assemblynet_seg_tp1= "/data/Assembly_seg_1mm_n_mmni_fmni_template_t1_timepoint_1_90_99172_T1.nii.gz"
     assemblynet_seg_tp2= "/data/Assembly_seg_1mm_n_mmni_fmni_template_t1_timepoint_2_90_122039_T1.nii.gz"
     """
-    assemblynet_seg_tp1= '/data/Assembly_seg_1mm_'+ os.path.basename(out_tp1_t1_mni)
-    assemblynet_seg_tp2= '/data/Assembly_seg_1mm_'+ os.path.basename(out_tp2_t1_mni)
-
     
     mni_lesion_filename_tp1, results_lesion_type_tp1 = get_lesion_by_regions_Assemblynet(assemblynet_seg_tp1, all_lesions_filename_tp1)
     mni_lesion_filename_tp2, results_lesion_type_tp2 = get_lesion_by_regions_Assemblynet(assemblynet_seg_tp2, all_lesions_filename_tp2)
@@ -171,11 +170,15 @@ def process_files(native_tp1_t1_filename, native_tp1_flair_filename,
     
     t7 = time.time()
 
+    img_info_tp1= '/data/img_info_timepoint1_'+ os.path.basename(native_tp1_t1_filename).replace("nii.gz","txt")
+    img_info_tp2= '/data/img_info_timepoint2_'+ os.path.basename(native_tp2_t1_filename).replace("nii.gz","txt")
+
+
     report(out_tp1_t1_mni, out_tp1_flair_mnitp1,out_tp1_mask_mni, mni_structures_filename_tp1,  
-           out_mniflair_to_mniflair_for_tp2, mni_tissues_tp1, mni_lesion_filename_tp1, bounds_df, age, sex, no_pdf_report)
+           img_info_tp1, mni_tissues_tp1, mni_lesion_filename_tp1, bounds_df, age, sex, no_pdf_report)
     
     report(out_tp2_t1_mni, out_tp2_flair_mni, out_tp2_mask_mnitp1, mni_structures_filename_tp2,  
-           out_mniflair_to_mniflair_for_tp2, mni_tissues_tp2, mni_lesion_filename_tp2, bounds_df, age, sex, no_pdf_report)
+           img_info_tp2, mni_tissues_tp2, mni_lesion_filename_tp2, bounds_df, age, sex, no_pdf_report)
     
     end #code not adapted after this point
 

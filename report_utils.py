@@ -73,7 +73,7 @@ def get_structures(hemi_filename, structures_sym_filename):
 
 def get_tissues_from_Assemblynet(fname_lab):
     structures_assemblynet = nii.load(fname_lab).get_data() 
-    structures = np.zeros(fname_lab.shape)
+    structures = np.zeros(structures_assemblynet.shape)
     # 
     Cortical_labs= [100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 112, 113, 114, 115, 116, 117,118, 119, 120, 121, 122, 123, 124, 125, 128, 129, 132, 133, 134, 135, 136, 137,138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153,154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171,172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187,190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205,206, 207] 
     Cerebrum_WM_labs= [44, 45, 61, 62]
@@ -96,14 +96,14 @@ def get_tissues_from_Assemblynet(fname_lab):
         structures[ tissue_lab ]=lab_macro
         lab_macro=lab_macro+1
 
-    structures_filename = structures_assemblynet.replace('Assembly', 'tissues').replace('.nii', '.nii.gz')
-    array_img = nii.Nifti1Image(structures.astype('uint8'), nii.load(structures_assemblynet).affine)
+    structures_filename = fname_lab.replace('Assembly', 'tissues')
+    array_img = nii.Nifti1Image(structures.astype('uint8'), nii.load(fname_lab).affine)
     array_img.to_filename(structures_filename)
     return structures_filename
 
 def get_structures_from_Assemblynet(fname_lab):
     structures_assemblynet = nii.load(fname_lab).get_data() 
-    structures = np.zeros(fname_lab.shape)
+    structures = np.zeros(structures_assemblynet.shape)
     # Left than Right for the following structures --> ['Lateral ventricles', 'Caudate', 'Putamen', 'Thalamus', 'Globus pallidus', 'Hippocampus', 'Amygdala', 'Accumbens']
 
     lab_macro=1
@@ -111,8 +111,8 @@ def get_structures_from_Assemblynet(fname_lab):
         structures[(structures_assemblynet== lab)]=lab_macro
         lab_macro=lab_macro+1
 
-    structures_filename = structures_assemblynet.replace('Assembly', 'macro_structures').replace('.nii', '.nii.gz')
-    array_img = nii.Nifti1Image(structures.astype('uint8'), nii.load(structures_assemblynet).affine)
+    structures_filename =  fname_lab.replace('Assembly', 'macro_structures')
+    array_img = nii.Nifti1Image(structures_assemblynet.astype('uint8'), nii.load(fname_lab).affine)
     array_img.to_filename(structures_filename)
     return structures_filename
 
@@ -348,7 +348,7 @@ def read_info_file(information_filename):
     with open(information_filename, 'r') as f:
         list_file = f.readlines()
         assert(len(list_file)==2)
-        assert(list_file[0]=="my_snr_1,my_snr_2,scalet1,orientation_report\n")
+        #assert(list_file[0]=="my_snr_1,my_snr_2,scalet1,orientation_report\n")
         list2 = list_file[1].split(",")
         assert(len(list2) == 4)
         snr = float(list2[0])

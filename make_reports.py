@@ -1,7 +1,7 @@
 from report_utils import *
 
 #B:TODO: input_root_dir="", global_csv=False, global_csv_filename=""
-def report(input_t1_filename, input_flair_filename, MASK_filename, structures_filename, transform_filename,
+def report(input_t1_filename, input_flair_filename, MASK_filename, structures_filename, info_filename,
            crisp_filename, lesion_types_filename, bounds_df, age='Unknown', sex='Unknown', no_pdf_report=False):
     FLAIR_img = nii.load(input_flair_filename)
     MASK_img = nii.load(MASK_filename)
@@ -19,7 +19,7 @@ def report(input_t1_filename, input_flair_filename, MASK_filename, structures_fi
             age = "Unknown"
 
 
-    info_filename = os.path.join(os.path.dirname(input_t1_filename), replace_extension(os.path.basename(input_t1_filename).replace("mni_t1_", "img_info_"), ".nii.gz", ".txt"))
+    #info_filename = os.path.join(os.path.dirname(input_t1_filename), replace_extension(os.path.basename(input_t1_filename).replace("mni_t1_", "img_info_"), ".nii.gz", ".txt"))
     snr, scale, orientation_report = read_info_file(info_filename)
 
     MASK = MASK_img.get_data()
